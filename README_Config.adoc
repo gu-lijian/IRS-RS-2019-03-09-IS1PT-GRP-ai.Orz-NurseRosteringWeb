@@ -1,0 +1,3 @@
+EmployeeRosteringScoreRules.drl: Hard Medium Soft Constraints
+employeeRosteringSolverConfig.xml: secondsSpentLimit default 30s
+ShiftRosterToolBar.java: timeRemaining = 60

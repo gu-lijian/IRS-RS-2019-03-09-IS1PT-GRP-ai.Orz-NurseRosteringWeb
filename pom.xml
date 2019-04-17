@@ -1,0 +1,615 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.kie</groupId>
+    <artifactId>kie-parent</artifactId>
+    <version>7.21.0-SNAPSHOT</version>
+  </parent>
+
+  <groupId>org.optaweb.employeerostering</groupId>
+  <artifactId>employee-rostering</artifactId>
+  <packaging>pom</packaging>
+
+  <name>Employee Rostering as a Service Parent</name>
+  <description>
+    Employee Rostering as a Service with OptaPlanner on OpenShift 3.
+  </description>
+  <url>https://www.optaplanner.org</url>
+  <inceptionYear>2017</inceptionYear>
+
+  <repositories>
+    <!-- Bootstrap repository to locate the parent pom when the parent pom has not been build locally. -->
+    <repository>
+      <id>jboss-public-repository-group</id>
+      <name>JBoss Public Repository Group</name>
+      <url>https://repository.jboss.org/nexus/content/groups/public/</url>
+      <layout>default</layout>
+      <releases>
+        <enabled>true</enabled>
+        <updatePolicy>never</updatePolicy>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+        <updatePolicy>daily</updatePolicy>
+      </snapshots>
+    </repository>
+  </repositories>
+
+  <properties>
+    <checkstyle.logViolationsToConsole>true</checkstyle.logViolationsToConsole>
+    <checkstyle.header.template><![CDATA[
+^\/\*$\n^
+\* Copyright \d\d\d\d Red Hat, Inc\. and\/or its affiliates\.$\n^
+\*$\n^
+\* Licensed under the Apache License, Version 2\.0 \(the &quot;License&quot;\);$\n^
+\* you may not use this file except in compliance with the License\.$\n^
+\* You may obtain a copy of the License at$\n^
+\*$\n^
+\*     http:\/\/www\.apache\.org\/licenses\/LICENSE-2\.0$\n^
+\*$\n^
+\* Unless required by applicable law or agreed to in writing, software$\n^
+\* distributed under the License is distributed on an &quot;AS IS&quot; BASIS,$\n^
+\* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied\.$\n^
+\* See the License for the specific language governing permissions and$\n^
+\* limitations under the License\.$\n^
+\*\/$
+]]>
+    </checkstyle.header.template>
+    <needs-errai-1101-workaround>true</needs-errai-1101-workaround>
+    <wildfly.parent>${project.basedir}/local/appserver</wildfly.parent>
+    <wildfly.home>${wildfly.parent}/wildfly-${version.org.wildfly}</wildfly.home>
+    <wildfly.launchdir>${project.basedir}/local/appserver/wildfly-${version.org.wildfly}</wildfly.launchdir>
+    <wildfly.install.skip>false</wildfly.install.skip>
+    <deployment.parent>${project.basedir}/employee-rostering-webapp/target</deployment.parent>
+    <deployment.name>optaweb-${project.artifactId}-${project.version}</deployment.name>
+    <antrun.skip>false</antrun.skip>
+
+    <!-- Maven resource filtering -->
+    <org.optaweb.employeerostering.persistence.datasource>java:jboss/datasources/ExampleDS</org.optaweb.employeerostering.persistence.datasource>
+    <org.optaweb.employeerostering.persistence.dialect>org.hibernate.dialect.H2Dialect</org.optaweb.employeerostering.persistence.dialect>
+    <org.optaweb.employeerostering.persistence.hbm2ddl.auto>create</org.optaweb.employeerostering.persistence.hbm2ddl.auto>
+
+    <version.com.github.nmorel.gwtjackson.restprocessor>0.4.1</version.com.github.nmorel.gwtjackson.restprocessor>
+    <version.com.github.nmorel.gwtjackson>0.14.2</version.com.github.nmorel.gwtjackson>
+    <version.com.google.jsinterop.base>1.0.0-beta-1</version.com.google.jsinterop.base>
+    <!-- TODO update gwt-maven-plugin version in kie-parent and then remove this override -->
+    <version.net.ltgt.gwt.maven>1.0-rc-9</version.net.ltgt.gwt.maven>
+    <version.org.gwtbootstrap3>0.9.4</version.org.gwtbootstrap3>
+    <version.org.webjars.bower.org.patternfly>3.18.1</version.org.webjars.bower.org.patternfly>
+    <version.org.webjars.Eonasdan-bootstrap-datetimepicker>4.17.47</version.org.webjars.Eonasdan-bootstrap-datetimepicker>
+    <version.org.webjars.momentjs>2.22.2</version.org.webjars.momentjs>
+    <!-- gwtmockito uses a different version of mockito than kie-parent, so we need to override the mockito version,
+         kie-parent manages version 1.x -->
+    <version.org.mockito>2.12.0</version.org.mockito>
+    <!-- this version ensures this is correctly taken version bytebuddy which works with mockito-core 2.x  -->
+    <version.net.bytebuddy>1.7.9</version.net.bytebuddy>
+  </properties>
+
+  <modules>
+    <module>employee-rostering-shared</module>
+    <module>employee-rostering-server</module>
+    <module>employee-rostering-restclient</module>
+    <!-- The modules employee-rostering-shared-gwt and employee-rostering-gwtui
+       are added by the maven profile withGwt (which is enabled by default) -->
+    <module>employee-rostering-webapp</module>
+    <module>employee-rostering-benchmark</module>
+    <module>employee-rostering-docs</module>
+    <module>employee-rostering-distribution</module>
+  </modules>
+
+  <dependencyManagement>
+    <dependencies>
+      <!-- Internal -->
+      <dependency>
+        <groupId>org.optaweb.employeerostering</groupId>
+        <artifactId>employee-rostering-shared</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.optaweb.employeerostering</groupId>
+        <artifactId>employee-rostering-shared</artifactId>
+        <version>${project.version}</version>
+        <classifier>sources</classifier>
+      </dependency>
+      <dependency>
+        <groupId>org.optaweb.employeerostering</groupId>
+        <artifactId>employee-rostering-shared-gwt</artifactId>
+        <type>gwt-lib</type>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.optaweb.employeerostering</groupId>
+        <artifactId>employee-rostering-gwtui</artifactId>
+        <type>war</type>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.optaweb.employeerostering</groupId>
+        <artifactId>employee-rostering-server</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.optaweb.employeerostering</groupId>
+        <artifactId>employee-rostering-webapp</artifactId>
+        <type>war</type>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.optaweb.employeerostering</groupId>
+        <artifactId>employee-rostering-docs</artifactId>
+        <type>zip</type>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.optaweb.employeerostering</groupId>
+        <artifactId>employee-rostering-restclient</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <!-- BOMs -->
+      <dependency>
+        <groupId>org.wildfly.bom</groupId>
+        <artifactId>wildfly-javaee8</artifactId>
+        <type>pom</type>
+        <version>${version.org.wildfly}</version>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.jboss.errai.bom</groupId>
+        <artifactId>errai-internal-bom</artifactId>
+        <version>${version.org.jboss.errai}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.kie.soup</groupId>
+        <artifactId>kie-soup-bom</artifactId>
+        <type>pom</type>
+        <scope>import</scope>
+        <version>${version.org.kie}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.optaplanner</groupId>
+        <artifactId>optaplanner-bom</artifactId>
+        <type>pom</type>
+        <version>${version.org.kie}</version>
+        <scope>import</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-annotations</artifactId>
+        <version>${version.com.fasterxml.jackson}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.datatype</groupId>
+        <artifactId>jackson-datatype-jsr310</artifactId>
+        <version>${version.com.fasterxml.jackson}</version>
+      </dependency>
+
+      <!-- GWT -->
+      <dependency>
+        <groupId>com.github.nmorel.gwtjackson</groupId>
+        <artifactId>gwt-jackson</artifactId>
+        <version>${version.com.github.nmorel.gwtjackson}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.github.nmorel.gwtjackson</groupId>
+        <artifactId>gwt-jackson-rest-processor</artifactId>
+        <version>${version.com.github.nmorel.gwtjackson.restprocessor}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.github.nmorel.gwtjackson</groupId>
+        <artifactId>gwt-jackson-rest-api</artifactId>
+        <version>${version.com.github.nmorel.gwtjackson.restprocessor}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.jsinterop</groupId>
+        <artifactId>base</artifactId>
+        <version>${version.com.google.jsinterop.base}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.elemental2</groupId>
+        <artifactId>elemental2-core</artifactId>
+        <version>${version.com.google.elemental2}</version>
+      </dependency>
+      <!-- byte-buddy is managed in kie-parent and we need to keep the same version mockito-core defines -->
+      <dependency>
+        <groupId>net.bytebuddy</groupId>
+        <artifactId>byte-buddy</artifactId>
+        <version>${version.net.bytebuddy}</version>
+        <scope>test</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <configuration>
+          <failOnViolation>true</failOnViolation>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <inherited>false</inherited>
+        <executions>
+          <execution>
+            <id>unpack</id>
+            <phase>package</phase>
+            <goals>
+              <goal>unpack</goal>
+            </goals>
+            <configuration>
+              <skip>${wildfly.install.skip}</skip>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>org.wildfly</groupId>
+                  <artifactId>wildfly-dist</artifactId>
+                  <version>${version.org.wildfly}</version>
+                  <type>zip</type>
+                  <overWrite>false</overWrite>
+                  <outputDirectory>${wildfly.parent}</outputDirectory>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <inherited>false</inherited>
+        <executions>
+          <execution>
+            <id>create-symbolic-link</id>
+            <phase>package</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <skip>${antrun.skip}</skip>
+              <target>
+                <symlink
+                    link="${wildfly.launchdir}/standalone/deployments/${deployment.name}.war"
+                    resource="${deployment.parent}/${deployment.name}"
+                    overwrite="true"/>
+              </target>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+
+      <plugin>
+        <groupId>net.ltgt.gwt.maven</groupId>
+        <artifactId>gwt-maven-plugin</artifactId>
+      </plugin>
+
+      <plugin>
+        <groupId>org.wildfly.plugins</groupId>
+        <artifactId>wildfly-maven-plugin</artifactId>
+        <inherited>false</inherited>
+        <executions>
+          <execution>
+            <id>default-cli</id>
+            <goals>
+              <goal>start</goal>
+              <goal>deploy</goal>
+              <goal>redeploy-only</goal>
+            </goals>
+            <configuration>
+              <jbossHome>${wildfly.launchdir}</jbossHome>
+              <filename>${deployment.name}.war/</filename>
+              <targetDir>${wildfly.launchdir}/standalone/deployments</targetDir>
+              <name>optaweb-employee-rostering.war</name>
+              <checkPackaging>false</checkPackaging>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>net.ltgt.gwt.maven</groupId>
+          <artifactId>gwt-maven-plugin</artifactId>
+          <version>${version.net.ltgt.gwt.maven}</version>
+          <extensions>true</extensions>
+          <configuration>
+            <style>PRETTY</style>
+            <!-- TODO turn this one, probably after GWT supports java.time -->
+            <!--<failOnError>true</failOnError> -->
+            <devmodeArgs>
+              <!-- GWT Super Dev Mode: Replace default backend by WildFly -->
+              <arg>-server</arg>
+              <arg>org.jboss.errai.cdi.server.gwt.EmbeddedWildFlyLauncher</arg>
+              <arg>-startupUrl</arg>
+              <arg>gwtui/gwtui.html</arg>
+            </devmodeArgs>
+            <jvmArgs>
+              <!-- Remote debugger: uncomment this line to debug the WildFly backend -->
+              <!--<arg>-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005</arg> -->
+            </jvmArgs>
+            <!-- GWT Super Dev Mode: deploy backend correctly -->
+<!--            <launcherDir>${deployment.parent}/${deployment.name}</launcherDir>-->
+            <launcherDir>${deployment.parent}/${deployment.name}</launcherDir>
+            <systemProperties>
+              <!-- GWT Super Dev Mode: which WildFly to use -->
+              <errai.jboss.home>${wildfly.home}</errai.jboss.home>
+              <!-- Make IDE war run config and GWT Super Dev Mode use same 
+                deployment context to avoid duplicate, conflicting deployment -->
+              <errai.dev.context>optaweb-employee-rostering</errai.dev.context>
+            </systemProperties>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+
+  <profiles>
+    <profile>
+      <id>withGwt</id>
+      <activation>
+        <property>
+          <name>!withoutGwt</name>
+        </property>
+      </activation>
+      <modules>
+        <module>employee-rostering-shared-gwt</module>
+        <module>employee-rostering-gwtui</module>
+      </modules>
+    </profile>
+
+    <profile>
+      <!-- Magic profileId that is activated automatically in OpenShift S2I builds -->
+      <id>openshift</id>
+      <properties>
+        <wildfly.install.skip>true</wildfly.install.skip>
+        <antrun.skip>true</antrun.skip>
+        <cargo.maven.skip>true</cargo.maven.skip>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>net.ltgt.gwt.maven</groupId>
+            <artifactId>gwt-maven-plugin</artifactId>
+            <configuration>
+              <!-- Minify the JavaScript code to improve latency -->
+              <!--<style>OBFUSCATED</style>-->
+              <compilerArgs>
+                <!-- Remove warnings that only appear on OpenShift -->
+                <arg>-XdisableUpdateCheck</arg>
+              </compilerArgs>
+              <!-- Avoid crash "error code 137" on OpenShift -->
+              <!--<localWorkers>1</localWorkers>-->
+              <!--<jvmArgs>-->
+              <!--<arg>-Xmx1024m</arg>-->
+              <!--<arg>-Xss256k</arg>-->
+              <!--</jvmArgs>-->
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-failsafe-plugin</artifactId>
+            <configuration>
+              <!-- Because cargo was skipped -->
+              <skipITs>true</skipITs>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <!-- To activate use -Dproductized (not -P) -->
+      <id>productized</id>
+      <activation>
+        <property>
+          <name>productized</name>
+        </property>
+      </activation>
+      <properties>
+        <!-- Maven resource filtering -->
+        <dollarSign>$</dollarSign><!-- HACK to escape maven property interpolation -->
+        <!-- The productized docker image has EAP <spec-descriptor-property-replacement> set to true -->
+        <!-- to dynamically configure the database type (mysql, postgresql, ...). -->
+        <org.optaweb.employeerostering.persistence.datasource>${dollarSign}{org.optaweb.employeerostering.persistence.datasource:java:jboss/datasources/ExampleDS}</org.optaweb.employeerostering.persistence.datasource>
+        <org.optaweb.employeerostering.persistence.dialect>${dollarSign}{org.optaweb.employeerostering.persistence.dialect:org.hibernate.dialect.H2Dialect}</org.optaweb.employeerostering.persistence.dialect>
+        <org.optaweb.employeerostering.persistence.hbm2ddl.auto>${dollarSign}{org.optaweb.employeerostering.persistence.hbm2ddl.auto:update}</org.optaweb.employeerostering.persistence.hbm2ddl.auto>
+      </properties>
+      <build>
+        <pluginManagement>
+          <plugins>
+            <plugin>
+              <groupId>org.codehaus.cargo</groupId>
+              <artifactId>cargo-maven2-plugin</artifactId>
+              <configuration>
+                <configuration>
+                  <properties>
+                    <cargo.wildfly.script.cli.embedded.descriptor-replacement>${project.build.testOutputDirectory}/descriptor-replacement.cli</cargo.wildfly.script.cli.embedded.descriptor-replacement>
+                  </properties>
+                </configuration>
+              </configuration>
+            </plugin>
+          </plugins>
+        </pluginManagement>
+      </build>
+    </profile>
+
+    <profile>
+      <id>deploy</id>
+      <properties>
+        <antrun.skip>true</antrun.skip>
+      </properties>
+    </profile>
+
+    <profile>
+      <id>run-code-coverage</id>
+      <properties>
+        <jacoco.excludes>*Lexer</jacoco.excludes>
+        <jacoco.exec.file>${project.build.directory}/jacoco.exec</jacoco.exec.file>
+        <jacoco.agent.line>-javaagent:${settings.localRepository}/org/jacoco/org.jacoco.agent/${version.jacoco.plugin}/org.jacoco.agent-${version.jacoco.plugin}-runtime.jar=destfile=${jacoco.exec.file},append=true,excludes=${jacoco.excludes}</jacoco.agent.line>
+      </properties>
+      <dependencyManagement>
+        <dependencies>
+          <dependency>
+            <groupId>org.jacoco</groupId>
+            <artifactId>org.jacoco.agent</artifactId>
+            <version>${version.jacoco.plugin}</version>
+          </dependency>
+        </dependencies>
+      </dependencyManagement>
+      <dependencies>
+        <dependency>
+          <groupId>org.jacoco</groupId>
+          <artifactId>org.jacoco.agent</artifactId>
+          <classifier>runtime</classifier>
+          <scope>test</scope>
+        </dependency>
+      </dependencies>
+      <build>
+        <pluginManagement>
+          <plugins>
+            <plugin>
+              <groupId>org.jacoco</groupId>
+              <artifactId>jacoco-maven-plugin</artifactId>
+              <version>${version.jacoco.plugin}</version>
+              <configuration>
+                <append>true</append>
+                <destFile>${jacoco.exec.file}</destFile>
+                <excludes>
+                  <exclude>${jacoco.excludes}</exclude>
+                </excludes>
+              </configuration>
+              <executions>
+                <execution>
+                  <id>default-instrument</id>
+                  <goals>
+                    <goal>instrument</goal>
+                  </goals>
+                </execution>
+                <execution>
+                  <id>default-restore-instrumented-classes</id>
+                  <goals>
+                    <goal>restore-instrumented-classes</goal>
+                  </goals>
+                </execution>
+              </executions>
+            </plugin>
+            <plugin>
+              <groupId>org.codehaus.cargo</groupId>
+              <artifactId>cargo-maven2-plugin</artifactId>
+              <configuration>
+                <configuration>
+                  <properties>
+                    <cargo.start.jvmargs>${jacoco.agent.line}</cargo.start.jvmargs>
+                  </properties>
+                </configuration>
+              </configuration>
+              <dependencies>
+                <dependency>
+                  <groupId>org.jacoco</groupId>
+                  <artifactId>org.jacoco.agent</artifactId>
+                  <version>${version.jacoco.plugin}</version>
+                </dependency>
+              </dependencies>
+            </plugin>
+            <plugin>
+              <groupId>net.ltgt.gwt.maven</groupId>
+              <artifactId>gwt-maven-plugin</artifactId>
+              <configuration>
+                <skipCompilation>true</skipCompilation>
+              </configuration>
+            </plugin>
+            <plugin>
+              <artifactId>maven-surefire-plugin</artifactId>
+              <configuration>
+                <systemPropertyVariables>
+                  <jacoco-agent.destfile>${jacoco.exec.file}</jacoco-agent.destfile>
+                </systemPropertyVariables>
+              </configuration>
+            </plugin>
+          </plugins>
+        </pluginManagement>
+        <plugins>
+          <plugin>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <!--
+        For running the report manually, please refer to travis.yml.
+      -->
+      <id>report-code-coverage</id>
+      <properties>
+        <jacoco.master.exec.file>${maven.multiModuleProjectDirectory}/target/jacoco.exec</jacoco.master.exec.file>
+        <sonar.jacoco.reportPaths>${jacoco.master.exec.file}</sonar.jacoco.reportPaths>
+      </properties>
+      <build>
+        <pluginManagement>
+          <plugins>
+            <plugin>
+              <groupId>org.jacoco</groupId>
+              <artifactId>jacoco-maven-plugin</artifactId>
+              <version>${version.jacoco.plugin}</version>
+              <configuration>
+                <fileSets>
+                  <fileSet>
+                    <directory>${project.build.directory}</directory>
+                    <includes>
+                      <include>*.exec</include>
+                    </includes>
+                  </fileSet>
+                </fileSets>
+                <destFile>${jacoco.master.exec.file}</destFile>
+              </configuration>
+            </plugin>
+          </plugins>
+        </pluginManagement>
+      </build>
+    </profile>
+
+    <profile>
+      <!-- environment-specific profile that should be activated only when running in travis-ci. -->
+      <id>travis-ci</id>
+      <activation>
+        <property>
+          <name>env.TRAVIS</name>
+          <value>true</value>
+        </property>
+      </activation>
+      <build>
+        <pluginManagement>
+          <plugins>
+            <plugin>
+              <groupId>org.codehaus.cargo</groupId>
+              <artifactId>cargo-maven2-plugin</artifactId>
+              <configuration>
+                <container>
+                  <systemProperties>
+                    <java.net.preferIPv4Stack>true</java.net.preferIPv4Stack>
+                    <java.net.preferIPv4Addresses>true</java.net.preferIPv4Addresses>
+                  </systemProperties>
+                </container>
+              </configuration>
+            </plugin>
+          </plugins>
+        </pluginManagement>
+      </build>
+    </profile>
+  </profiles>
+
+</project>
